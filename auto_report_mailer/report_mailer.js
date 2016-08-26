@@ -34,7 +34,6 @@ function sendmail(linkUrl,reportDate,driveid) {
 
 function main() {
 ///// Find our spreadsheet  
-  //  var files = DriveApp.getFilesByName('egalleymaker_report.tsv');
   var status = 'file not found';
   var files = DriveApp.searchFiles('title contains ".tsv"');
   while (files.hasNext()) {
@@ -44,13 +43,9 @@ function main() {
     var driveid = file.getId();
     var driveurl = file.getUrl();
 ///// Rename the spreadsheet, and edit permissions
-    //var todayDate = Utilities.formatDate(new Date(), "EDT", "MM-dd-yyyy");
     var name = file.getName();
-    var newname = name.split('.').shift(1); //+ '_' + todayDate;
-    //    if (name.match(/.tsv/)) { 
+    var newname = name.split('.').shift(1);
       file.setName(newname);
-    //    }
-    //    file.setSharing(DriveApp.Access.DOMAIN_WITH_LINK, DriveApp.Permission.COMMENT);
 ///// Format our sheet
     var reportDate = newname.split('_')[2]
     var sheet = ss.getSheets()[0];
@@ -66,7 +61,6 @@ function main() {
     }  
     var status = sendmail(driveurl,reportDate,driveid);
   }
-  //Logger.log(status);
   writelogtoDoc(status);
 }
 
@@ -91,7 +85,7 @@ function writelogtoDoc(scriptStatus) {
   var doc = DocumentApp.openById('1HTWhWYrVSFaK9aqPkeaLMPvWzvAi6AuICEOnBM4f60U');
   var body = doc.getBody();
   var text = body.editAsText();
-  var todayTime = new Date(); //Utilities.formatDate(new Date(), "EDT", "MM-dd-yyyy'T'HH:mm:ss'Z'");
+  var todayTime = new Date();
   var logText = '[' + todayTime + ']  ' + scriptStatus
   Logger.log(logText);
   text.insertText(0, logText + '\n');
