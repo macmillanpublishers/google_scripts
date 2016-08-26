@@ -53,7 +53,6 @@ function main() {
     var headerRange = sheet.getRange("A1:H1");
     borderRange.setBorder(true, true,true, true, true, true, '#808080', null).setHorizontalAlignment("left");
     headerRange.setFontWeight("bold").setBackground('#d0e0e3').setHorizontalAlignment("center");
-    //sheet.getRange('a1').setValue('test');//
     var stepsRange = sheet.getDataRange().offset(1, 0, sheet.getLastRow() - 1);
     setAlternatingRowBackgroundColors_(stepsRange, '#ffffff', '#eeeeee');
     for (var column = 1; column<=stepsRange.getNumColumns(); column++) {
