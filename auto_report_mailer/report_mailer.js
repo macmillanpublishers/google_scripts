@@ -20,8 +20,25 @@ function sendmail(linkUrl,reportDate,driveid) {
   var recipientsALLarray = recipientsCCarray.concat(recipientsTOarray);
   var sheetEditors = addressSheet.getSheetValues(2, 3, Editorslength-1, 1);
   var targetFile = SpreadsheetApp.openById(driveid);
-  targetFile.addViewers(recipientsALLarray);
-  targetFile.addEditors(sheetEditors);
+  
+  for(i=0; i<recipientsALLarray.length; i++) {
+    try{
+    targetFile.addViewers(recipientsALLarray[i]);
+      Logger.log('added '+recipientsALLarray[i]+ ' as viewer');
+    } 
+    catch(e){
+      Logger.log('An error has occurred: '+e.message)
+    }
+  }
+  for(i=0; i<sheetEditors.length; i++) {
+    try{
+    targetFile.addEditors(sheetEditors[i]);
+      Logger.log('added '+sheetEditors[i] + ' as editor');
+    } 
+    catch(e){
+      Logger.log('An error has occurred: '+e.message)
+    }
+  }
   
   MailApp.sendEmail({
     to: recipientsTO,
@@ -33,7 +50,8 @@ function sendmail(linkUrl,reportDate,driveid) {
 }
 
 function main() {
-///// Find our spreadsheet  
+///// Find our spreadsheet
+  refreshDriveList();
   var status = 'file not found';
   var files = DriveApp.searchFiles('title contains ".tsv"');
   while (files.hasNext()) {
@@ -43,9 +61,13 @@ function main() {
     var driveid = file.getId();
     var driveurl = file.getUrl();
 ///// Rename the spreadsheet, and edit permissions
+    //var todayDate = Utilities.formatDate(new Date(), "EDT", "MM-dd-yyyy");
     var name = file.getName();
-    var newname = name.split('.').shift(1);
+    var newname = name.split('.').shift(1); //+ '_' + todayDate;
+    //    if (name.match(/.tsv/)) { 
       file.setName(newname);
+    //    }
+    //    file.setSharing(DriveApp.Access.DOMAIN_WITH_LINK, DriveApp.Permission.COMMENT);
 ///// Format our sheet
     var reportDate = newname.split('_')[2]
     var sheet = ss.getSheets()[0];
@@ -53,6 +75,7 @@ function main() {
     var headerRange = sheet.getRange("A1:H1");
     borderRange.setBorder(true, true,true, true, true, true, '#808080', null).setHorizontalAlignment("left");
     headerRange.setFontWeight("bold").setBackground('#d0e0e3').setHorizontalAlignment("center");
+    //sheet.getRange('a1').setValue('test');//
     var stepsRange = sheet.getDataRange().offset(1, 0, sheet.getLastRow() - 1);
     setAlternatingRowBackgroundColors_(stepsRange, '#ffffff', '#eeeeee');
     for (var column = 1; column<=stepsRange.getNumColumns(); column++) {
@@ -60,6 +83,7 @@ function main() {
     }  
     var status = sendmail(driveurl,reportDate,driveid);
   }
+  //Logger.log(status);
   writelogtoDoc(status);
 }
 
@@ -84,8 +108,17 @@ function writelogtoDoc(scriptStatus) {
   var doc = DocumentApp.openById('1HTWhWYrVSFaK9aqPkeaLMPvWzvAi6AuICEOnBM4f60U');
   var body = doc.getBody();
   var text = body.editAsText();
-  var todayTime = new Date();
+  var todayTime = new Date(); //Utilities.formatDate(new Date(), "EDT", "MM-dd-yyyy'T'HH:mm:ss'Z'");
   var logText = '[' + todayTime + ']  ' + scriptStatus
   Logger.log(logText);
   text.insertText(0, logText + '\n');
+}
+
+function refreshDriveList() {
+  // Log the name of every file in the user's Drive.
+var files = DriveApp.getFiles();
+while (files.hasNext()) {
+  var file = files.next();
+  Logger.log(file.getName());
+}
 }
