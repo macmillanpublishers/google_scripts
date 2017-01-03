@@ -2,7 +2,7 @@ function sendmail(linkUrl,reportDate,driveid) {
   linkUrl = linkUrl || "<dummylink-url undefined>";
   reportDate = reportDate || "<date unavailable>";
   driveid = driveid || "1Q44nYVNNZCPw7IF3LuGHQ9jD5NPrMCg0hScJ_DJ07cg";  //from testing file
- var mail_ss = SpreadsheetApp.openById("1-oeosXbcBkfewADNxnHt-EBXGUO2eF6DreIKA-AFBHs"); 
+ var mail_ss = SpreadsheetApp.openById("1-oeosXbcBkfewADNxnHt-EBXGUO2eF6DreIKA-AFBHs");
  var addressSheet = mail_ss.getSheets()[0];
  var Tolength = addressSheet.getRange("A1:A").getValues().filter(String).length;
  var CClength = addressSheet.getRange("B1:B").getValues().filter(String).length;
@@ -20,12 +20,12 @@ function sendmail(linkUrl,reportDate,driveid) {
   var recipientsALLarray = recipientsCCarray.concat(recipientsTOarray);
   var sheetEditors = addressSheet.getSheetValues(2, 3, Editorslength-1, 1);
   var targetFile = SpreadsheetApp.openById(driveid);
-  
+
   for(i=0; i<recipientsALLarray.length; i++) {
     try{
     targetFile.addViewers(recipientsALLarray[i]);
       Logger.log('added '+recipientsALLarray[i]+ ' as viewer');
-    } 
+    }
     catch(e){
       Logger.log('An error has occurred: '+e.message)
     }
@@ -34,18 +34,18 @@ function sendmail(linkUrl,reportDate,driveid) {
     try{
     targetFile.addEditors(sheetEditors[i]);
       Logger.log('added '+sheetEditors[i] + ' as editor');
-    } 
+    }
     catch(e){
       Logger.log('An error has occurred: '+e.message)
     }
   }
-  
+
   MailApp.sendEmail({
     to: recipientsTO,
     cc: recipientsCC,
     subject: subjectTxt,
     htmlBody: bodyTxt
-  }); 
+  });
   return "mail sent";
 }
 
@@ -55,16 +55,16 @@ function main() {
   var status = 'file not found';
   var files = DriveApp.searchFiles('title contains ".tsv"');
   while (files.hasNext()) {
-    var status = 'file found';   
+    var status = 'file found';
     var file = files.next();
-    var ss = SpreadsheetApp.open(file); 
+    var ss = SpreadsheetApp.open(file);
     var driveid = file.getId();
     var driveurl = file.getUrl();
 ///// Rename the spreadsheet, and edit permissions
     //var todayDate = Utilities.formatDate(new Date(), "EDT", "MM-dd-yyyy");
     var name = file.getName();
     var newname = name.split('.').shift(1); //+ '_' + todayDate;
-    //    if (name.match(/.tsv/)) { 
+    //    if (name.match(/.tsv/)) {
       file.setName(newname);
     //    }
     //    file.setSharing(DriveApp.Access.DOMAIN_WITH_LINK, DriveApp.Permission.COMMENT);
@@ -75,12 +75,14 @@ function main() {
     var headerRange = sheet.getRange("A1:H1");
     borderRange.setBorder(true, true,true, true, true, true, '#808080', null).setHorizontalAlignment("left");
     headerRange.setFontWeight("bold").setBackground('#d0e0e3').setHorizontalAlignment("center");
-    //sheet.getRange('a1').setValue('test');//
-    var stepsRange = sheet.getDataRange().offset(1, 0, sheet.getLastRow() - 1);
-    setAlternatingRowBackgroundColors_(stepsRange, '#ffffff', '#eeeeee');
-    for (var column = 1; column<=stepsRange.getNumColumns(); column++) {
-      sheet.autoResizeColumn(column);
-    }  
+    //adding conditional to prevent error if we have only a header row
+    if (sheet.getLastRow() > 1) {
+      var stepsRange = sheet.getDataRange().offset(1, 0, sheet.getLastRow() - 1);
+      setAlternatingRowBackgroundColors_(stepsRange, '#ffffff', '#eeeeee');
+      for (var column = 1; column<=stepsRange.getNumColumns(); column++) {
+        sheet.autoResizeColumn(column);
+      }
+    }
     var status = sendmail(driveurl,reportDate,driveid);
   }
   //Logger.log(status);
