@@ -6,6 +6,18 @@ Create a new Google Document / Sheet / Etc. Click on **Tools > Script editor** t
 
 You can [import/export files](https://developers.google.com/apps-script/import-export) via the Google Drive API but we'll have to figure that out in time.
 
+# auto_report_mailer
+This script is owned by the Macmillan workflows account.
+It is executed via a timed trigger, set for Monday mornings.
+It takes an uploaded .tsv file in Drive (containing info on the prior week's egalleymaker runs), formats and renames it, and shares the updated Drive sheet via custom email.
+For more details see internal Confluence documentation [here](https://confluence.macmillan.com/pages/viewpage.action?pageId=42868497).
+
+# image_rights_form-onsubmit
+This script is owned by the Macmillan workflows account.
+It is tied to a 'Master' Spreadsheet, which is in turn linked to the Macmillan Image-Rights Google Form: every time a submission is made to the form, the onSubmit function is run.
+It cleans up the new data and recreates it in a new sheet by imprint, and sends a notification to the designated watcher for that imprint.
+For more details see internal Confluence documentation [here](https://confluence.macmillan.com/display/PWG/Image+Rights+form).
+
 # event-registrationer
 An updated version of [this](https://developers.google.com/apps-script/quickstart/forms).
 ## Purpose
