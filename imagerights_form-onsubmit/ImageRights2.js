@@ -75,11 +75,11 @@ console.info(e.namedValues) // log to stackdriver
   //  var header_row = sheet_src.getRange(2,1,1,src_sheet_lastcol);
   var header_inserted = pasteHeaderRow(header_row_values, sheet_new, cols_to_hide, string_replace_dict, imprint_rownum, src_sheet_lastcol);
 
-  // // prepend to target sheet!
+  // prepend to target sheet!
   var newrow = sheet_new.insertRowAfter(1);
   var dest_sheet_lastcol = sheet_new.getLastColumn();
 
-  // copy data cell by cell to column with matching header
+  // copy cell by cell to match header
   for (var i = 0; i < new_submitted_row[0].length; i++) {
     var dest_column = getColWithHeaderText(sheet_new,header_row_values[0][i])
     Logger.log(dest_column)
@@ -115,6 +115,8 @@ console.info(e.namedValues) // log to stackdriver
     if (unlisted_stockhouse == true) {
       var subjectTxt = ss_settings.getSheetByName("email_notification-txt").getSheetValues(4,2,1,1).toString();
       var bodyTxt = ss_settings.getSheetByName("email_notification-txt").getSheetValues(5,2,1,1).toString();
+      var guest_recipients = ss_settings.getSheetByName("email_notification-txt").getSheetValues(6,2,1,1).toString();
+      email_recipients = email_recipients + ", " + guest_recipients
     } else {
       var subjectTxt = ss_settings.getSheetByName("email_notification-txt").getSheetValues(1,2,1,1).toString();
       var bodyTxt = ss_settings.getSheetByName("email_notification-txt").getSheetValues(2,2,1,1).toString();
@@ -301,8 +303,3 @@ function onFormSubmit_Leading0s(e){   // To to the resources menu and set this t
     }
   }
 }
-
-
-// function Loggingtest() {
-// console.info("Hello!");
-// }
