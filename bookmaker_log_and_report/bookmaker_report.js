@@ -29,7 +29,7 @@ function addSheetPermissions(file_id, editors, owners, viewers) {
     Drive.Permissions.insert(
       { 'value': v,
         'type': 'user',
-        'role': 'reader'},  
+        'role': 'reader'},
       file_id,
       { 'sendNotificationEmails': 'false'}
     )
@@ -38,7 +38,7 @@ function addSheetPermissions(file_id, editors, owners, viewers) {
     Drive.Permissions.insert(
       { 'value': e,
         'type': 'user',
-        'role': 'writer'},  
+        'role': 'writer'},
       file_id,
       { 'sendNotificationEmails': 'false'}
     )
@@ -47,9 +47,9 @@ function addSheetPermissions(file_id, editors, owners, viewers) {
     Drive.Permissions.insert(
       { 'value': o,
         'type': 'user',
-        'role': 'owner'},  
+        'role': 'owner'},
       file_id,
-      { 'sendNotificationEmails': 'false'}      
+      { 'sendNotificationEmails': 'false'}
     )
   }
 }
@@ -93,20 +93,20 @@ function formatSheet(sheet, lastcolumn) {
     setAlternatingRowBackgroundColors_(stepsRange, '#ffffff', '#eeeeee');
     for (var column = 1; column<=stepsRange.getNumColumns(); column++) {
       sheet.autoResizeColumn(column);
-    }  
+    }
   }
 }
 
 //////////////////////////////////////////////////// MAIN REPORT functions
-function report(ssname, parent_folder_id, submitter=test_submitter, startdate, enddate, staging){
+function report(ssname, parent_folder_id, submitter, startdate, enddate, staging){
   // testing values set as defaults
   ssname = ssname || 'test';
   parent_folder_id = parent_folder_id || form_report_folder_id;
   submitter = typeof submitter !== 'undefined' ? submitter : test_submitter; // <-- set default value only if param is undefined, not just falsey
   // submitter = submitter || test_submitter;
   startdate = startdate || new Date('2022-04-01');
-  enddate = enddate || new Date('2022-05-31'); 
-  staging = staging || true; 
+  enddate = enddate || new Date('2022-05-31');
+  staging = staging || true;
 
   // fixing to use shared resources, locking
   var lock = LockService.getScriptLock();
@@ -117,7 +117,7 @@ function report(ssname, parent_folder_id, submitter=test_submitter, startdate, e
       console.error('Could not obtain lock after 30 seconds, exiting');
       return "bookmaker_log script or sheet is busy, could not obtain lock within 30 seconds"
   }
- 
+
   // get new sheet
   var new_ss = newSheet(ssname, parent_folder_id);
   var new_ss_id = new_ss.id
@@ -132,7 +132,7 @@ function report(ssname, parent_folder_id, submitter=test_submitter, startdate, e
     headers = logsheet.getRange(1,1,1,lc).getValues()[0];
   }
   reportsheet.getRange(1,1,1,lc).setValues([headers])
-  
+
   // filter rows from old sheet by date
   const date_index = headers.indexOf('date')
   var non_header_rows = logsheet.getDataRange().getValues();
@@ -145,14 +145,14 @@ function report(ssname, parent_folder_id, submitter=test_submitter, startdate, e
   })
   // paste valid rows into new sheet
   reportsheet.getRange(2, 1, filtered_rows.length, filtered_rows[0].length).setValues(filtered_rows)
-  
+
   // format sheet
   formatSheet(reportsheet, lc);
   // change owner of sheet to submitter if this is form entry
   if (submitter != '') { addSheetPermissions(new_ss_id, [], [submitter], []); }
   // send mail
   var rs_url = ss_open.getUrl()
-  sendmail(recurring_rprt_resource_sheet_id,ssname,rs_url,startdate,enddate,new_ss_id,staging)
+  sendmail(recurring_rprt_resource_sheet_id,ssname,rs_url,startdate,enddate,new_ss_id,staging,submitter)
 
   // we're done with shared resources, release lock
   lock.releaseLock()
@@ -175,7 +175,7 @@ function getDates(daterange) {
       sdate = sdate.setMonth(sdate.getMonth() - 1);
       break;
     case form_range_all:
-      sdate = new Date('2021-01-01') // beginning recording bm runs in 2022
+      sdate = new Date('2020-09-09') // oldest date avail from Drive bookmaker logs
       break;
   }
   return {'datestart':new Date(sdate), 'dateend':edate}
@@ -199,7 +199,7 @@ function runFromForm(e) {
         break;
       case form_title_dateend:
         dateend = new Date(f_submitted[i].getResponse());
-        break;        
+        break;
     }
   }
   if (datestart == '' || dateend == '') {
@@ -232,7 +232,5 @@ function runFromTrigger() {
   var dateend_str = getShortDateStr(dateend)
   var servername = 'bookmaker'
   if (recurring_staging == true) { servername = 'bookmaker_stg'}
-  report(servername+'_report_'+datestart_str+'_to_'+dateend_str, recurring_report_folder_id, '', datestart, dateend, recurring_staging) 
+  report(servername+'_report_'+datestart_str+'_to_'+dateend_str, recurring_report_folder_id, '', datestart, dateend, recurring_staging)
 }
-
-
