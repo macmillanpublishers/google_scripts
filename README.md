@@ -12,6 +12,16 @@ It is executed via a timed trigger, set for Monday mornings.
 It takes an uploaded .tsv file in Drive (containing info on the prior week's egalleymaker runs), formats and renames it, and shares the updated Drive sheet via custom email.
 For more details see internal Confluence documentation [here](https://confluence.macmillan.com/pages/viewpage.action?pageId=42868497).
 
+# bookmaker_log_and_report
+This set of script modules serves two purposes:
+1. enable bookmaker to log all runs to a google sheet (log_bookmaker_run.js module). The 'main' function is invoked via google-appscript api by the product, per run.
+2. enable 'pretty' reports for specified date ranges, against the bookmaker log google-sheet (bookmaker_report.js module). Can be invoked via a form (onSubmit trigger > runFromForm function) or via a scheduled trigger (pointing to runFromTrigger function).
+### dev-notes
+- Note: id's to specific google resources and email addresses are marked here as REDACTED.
+- Bookmaker logging api is pointed at a script deployment (the only active one); currently all report triggers are pointed at the 'head' (live script in Script Editor).
+- Test reports can be run directly via the 'report' function.
+- Staging/testing resources can be set by constants at the top of the reporting module for reports... for logging the 'staging' value comes from input param of the same name passed to 'main'.
+
 # image_rights_form-onsubmit
 This script is owned by the Macmillan workflows account.
 It is tied to a 'Master' Spreadsheet, which is in turn linked to the Macmillan Image-Rights Google Form: every time a submission is made to the form, the onSubmit function is run.
