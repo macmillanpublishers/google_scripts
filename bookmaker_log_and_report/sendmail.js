@@ -1,7 +1,7 @@
 function sendmail(resource_sheet_id,filename,linkUrl,startdate,enddate,driveid,testing,submitter) {
   // default values for tests
   resource_sheet_id = resource_sheet_id || recurring_rprt_resource_sheet_id;
-  testing = testing || true;
+  testing = typeof testing !== 'undefined' ? testing : true; // revert to default if val is unset, not just when falsey
   linkUrl = linkUrl || "google.com";
   filename = filename || "reportfile"
   startdate = startdate || "date unavailable";
@@ -15,6 +15,7 @@ function sendmail(resource_sheet_id,filename,linkUrl,startdate,enddate,driveid,t
   } else {
     var addressSheet = mail_ss.getSheetByName("recipients");
   }
+
   var daterange_str = getShortDateStr(startdate)+" to "+getShortDateStr(enddate)
   var subjectTxt = mail_ss.getSheetByName("email_txt").getSheetValues(1,2,1,1).toString();
   var subjectTxt = subjectTxt.replace(/DATERANGE/,daterange_str);
@@ -28,12 +29,21 @@ function sendmail(resource_sheet_id,filename,linkUrl,startdate,enddate,driveid,t
     var Editorslength = addressSheet.getRange("C1:C").getValues().filter(String).length;
     var recipientsTOarray = addressSheet.getSheetValues(2, 1, Tolength-1, 1);
     var recipientsTO = recipientsTOarray.join(', ').toString();
-    var recipientsCCarray = addressSheet.getSheetValues(2, 2, CClength-1, 1);
-    var recipientsCC = recipientsCCarray.join(', ').toString();
+    if (CClength > 1) {
+      var recipientsCCarray = addressSheet.getSheetValues(2, 2, CClength-1, 1);
+      var recipientsCC = recipientsCCarray.join(', ').toString();
+    } else {
+      var recipientsCCarray = [];
+      var recipientsCC = '';
+    }
 
     ///// set permissions
     var recipientsALLarray = recipientsCCarray.concat(recipientsTOarray);
-    var sheetEditors = addressSheet.getSheetValues(2, 3, Editorslength-1, 1);
+    if (Editorslength > 1) {
+      var sheetEditors = addressSheet.getSheetValues(2, 3, Editorslength-1, 1);
+    } else {
+      var sheetEditors = [];
+    }
     addSheetPermissions(driveid, sheetEditors, [], recipientsALLarray)
   } else {
     // non-blank submitter means form submission, just mail to them, theyre already made owners of sheet
