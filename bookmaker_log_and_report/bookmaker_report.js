@@ -106,7 +106,7 @@ function report(ssname, parent_folder_id, submitter, startdate, enddate, staging
   // submitter = submitter || test_submitter;
   startdate = startdate || new Date('2022-04-01');
   enddate = enddate || new Date('2022-05-31');
-  staging = staging || true;
+  staging = typeof staging !== 'undefined' ? staging : true; 
 
   // fixing to use shared resources, locking
   var lock = LockService.getScriptLock();
